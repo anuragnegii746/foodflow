@@ -100,22 +100,22 @@ class FoodBotWidget {
       this.input.focus();
     }
   }
+async callAPI(message) {
+  const res = await fetch('https://foodflow-vfqm.onrender.com/api/chatbot/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message,
+      conversationHistory: this.conversationHistory.slice(-8),
+      userId: 'u001',
+    }),
+  });
 
-  async callAPI(message) {
-    const res = await fetch('http://localhost:3000/api/chatbot/message', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message,
-        conversationHistory: this.conversationHistory.slice(-8),
-        userId: 'u001',
-      }),
-    });
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    return data.reply;
-  }
+  if (!res.ok) throw new Error('API error');
 
+  const data = await res.json();
+  return data.reply;
+}
   appendMessage(role, text) {
     const isBot = role === 'bot';
     const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });

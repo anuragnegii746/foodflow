@@ -3,7 +3,7 @@
  * Centralized fetch wrapper for all backend API calls
  */
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://foodflow-vfqm.onrender.com/api';
 
 class ApiClient {
   constructor(base = API_BASE) {
