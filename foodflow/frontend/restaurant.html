@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodFlow — Restaurant</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Food<span>Flow</span></a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">← Back</a>
+    <a href="dashboard.html" class="nav-link">📊 Analytics</a>
+    <button class="btn-cart" onclick="location.href='cart.html'">
+      🛒 Cart <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- Restaurant Header -->
+<div id="restaurantHeader" style="background:var(--dark-2);border-bottom:1px solid rgba(255,255,255,0.06);padding:2rem clamp(1rem,4vw,3rem);">
+  <div style="max-width:1280px;margin:0 auto;">
+    <div style="display:flex;gap:1.5rem;align-items:flex-start;">
+      <div id="restEmoji" style="font-size:4rem;background:var(--dark-3);width:90px;height:90px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div id="restName" class="skeleton" style="height:28px;width:200px;margin-bottom:8px;"></div>
+        <div id="restMeta" style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:8px;"></div>
+        <div id="restTags"></div>
+      </div>
+      <div id="routePanel" style="background:var(--dark-3);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:1rem;min-width:220px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div style="max-width:1280px;margin:0 auto;padding:2rem clamp(1rem,4vw,3rem);display:grid;grid-template-columns:1fr 340px;gap:2rem;">
+
+  <!-- Menu -->
+  <div>
+    <!-- Category Filter -->
+    <div class="filter-bar" id="categoryFilter" style="margin-bottom:1.5rem;"></div>
+
+    <!-- Veg Toggle -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.5rem;">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.875rem;color:var(--text-light);">
+        <input type="checkbox" id="vegToggle" style="accent-color:var(--green);width:16px;height:16px;" />
+        Show veg only
+      </label>
+    </div>
+
+    <div id="menuContainer"></div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div>
+    <div style="position:sticky;top:88px;">
+      <div style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;">
+        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <h3 style="color:var(--cream);">🛒 Your Order</h3>
+          <div id="cartRestName" style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;"></div>
+        </div>
+        <div id="cartItems" style="padding:1rem 1.5rem;min-height:120px;max-height:320px;overflow-y:auto;">
+          <div class="empty-state" style="padding:2rem 0;">
+            <div class="empty-icon" style="font-size:2.5rem;">🍽️</div>
+            <div class="empty-title" style="font-size:1rem;">Cart is empty</div>
+            <div class="empty-desc" style="font-size:0.8rem;">Add items to get started</div>
+          </div>
+        </div>
+        <div style="padding:1.25rem 1.5rem;border-top:1px solid rgba(255,255,255,0.06);">
+          <div id="cartSummary" style="display:none;">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-light);margin-bottom:8px;">
+              <span>Subtotal</span><span id="cartSubtotal">₹0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-light);margin-bottom:12px;">
+              <span>Delivery Fee</span><span id="cartDeliveryFee">₹0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-weight:700;color:var(--cream);margin-bottom:16px;font-size:1rem;">
+              <span>Total</span><span id="cartTotal">₹0</span>
+            </div>
+          </div>
+          <button class="btn-primary" style="width:100%;justify-content:center;" onclick="location.href='cart.html'" id="checkoutBtn" disabled>
+            Proceed to Checkout →
+          </button>
+        </div>
+      </div>
+
+      <!-- DSA Box -->
+      <div style="background:rgba(255,77,46,0.05);border:1px solid rgba(255,77,46,0.15);border-radius:16px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--coral);margin-bottom:8px;">⚡ DSA in Action</div>
+        <div style="font-size:0.72rem;color:var(--text-muted);line-height:1.6;">
+          This menu is fetched via <strong style="color:var(--text-light);">LRU Cache</strong> (O(1) lookup).<br/>
+          Your cart uses a <strong style="color:var(--text-light);">HashMap</strong> for O(1) add/remove.<br/>
+          Order dispatch uses a <strong style="color:var(--text-light);">Min-Heap</strong> priority queue.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chatbot -->
+<button class="chatbot-toggle" id="chatToggle">🤖</button>
+<div class="chatbot-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="chat-avatar">🍔</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">FoodBot</div>
+      <div class="chat-header-status"><span class="status-dot"></span> Ask me about the menu</div>
+    </div>
+    <button class="chat-close-btn" id="chatClose">✕</button>
+  </div>
+  <div class="quick-chips" id="quickChips">
+    <div class="quick-chip" data-msg="What are the best dishes here?">⭐ Best dishes</div>
+    <div class="quick-chip" data-msg="Show me vegetarian options">🥗 Veg options</div>
+    <div class="quick-chip" data-msg="What is your most popular item?">🔥 Popular</div>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot">
+      <div class="msg-avatar">🍔</div>
+      <div><div class="msg-bubble">Looking at a restaurant? Ask me about dishes, allergies, or what to order! 🍽️</div></div>
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask about this menu..." rows="1"></textarea>
+    <button class="chat-send-btn" id="chatSend">➤</button>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="chatbot/chatbot.js"></script>
+<script>
+const EMOJIS = { Indian:'🍛', Chinese:'🥢', Italian:'🍕', American:'🍔', Japanese:'🍣', Mexican:'🌮' };
+const urlParams = new URLSearchParams(location.search);
+const restaurantId = urlParams.get('id') || 'rest_001';
+
+let restaurant = null;
+let fullMenu = [];
+let activeCategory = 'All';
+let vegOnly = false;
+
+// Demo data fallback
+const DEMO_RESTAURANTS = {
+  rest_001: { id:'rest_001', name:'Spice Garden', cuisine:'Indian', rating:4.5, deliveryTime:30, minOrder:150, isOpen:true, tags:['Biryani','Curry','North Indian'], address:'Zone_A',
+    menu:[
+      { id:'d001', name:'Chicken Biryani', price:280, category:'Main Course', rating:4.7, isVeg:false },
+      { id:'d002', name:'Paneer Butter Masala', price:220, category:'Main Course', rating:4.5, isVeg:true },
+      { id:'d003', name:'Garlic Naan', price:50, category:'Breads', rating:4.3, isVeg:true },
+      { id:'d004', name:'Dal Makhani', price:180, category:'Main Course', rating:4.4, isVeg:true },
+      { id:'d005', name:'Mango Lassi', price:80, category:'Beverages', rating:4.6, isVeg:true },
+    ]},
+  rest_002: { id:'rest_002', name:'Dragon Palace', cuisine:'Chinese', rating:4.2, deliveryTime:25, minOrder:200, isOpen:true, tags:['Noodles','Dim Sum','Fried Rice'], address:'Zone_B',
+    menu:[
+      { id:'d011', name:'Chicken Fried Rice', price:200, category:'Rice', rating:4.3, isVeg:false },
+      { id:'d012', name:'Veg Hakka Noodles', price:180, category:'Noodles', rating:4.1, isVeg:true },
+      { id:'d013', name:'Kung Pao Chicken', price:320, category:'Main Course', rating:4.5, isVeg:false },
+      { id:'d014', name:'Spring Rolls (6pc)', price:150, category:'Starters', rating:4.2, isVeg:true },
+      { id:'d015', name:'Hot & Sour Soup', price:120, category:'Soups', rating:4.0, isVeg:false },
+    ]},
+  rest_003: { id:'rest_003', name:'Pizza Piazza', cuisine:'Italian', rating:4.6, deliveryTime:35, minOrder:300, isOpen:true, tags:['Pizza','Pasta','Burgers'], address:'Zone_C',
+    menu:[
+      { id:'d021', name:'Margherita Pizza', price:350, category:'Pizza', rating:4.7, isVeg:true },
+      { id:'d022', name:'BBQ Chicken Pizza', price:420, category:'Pizza', rating:4.8, isVeg:false },
+      { id:'d023', name:'Penne Arrabbiata', price:280, category:'Pasta', rating:4.4, isVeg:true },
+      { id:'d024', name:'Garlic Bread', price:120, category:'Sides', rating:4.5, isVeg:true },
+      { id:'d025', name:'Tiramisu', price:180, category:'Desserts', rating:4.9, isVeg:true },
+    ]},
+  rest_004: { id:'rest_004', name:'Burger Barn', cuisine:'American', rating:4.3, deliveryTime:20, minOrder:100, isOpen:true, tags:['Burgers','Fries','Shakes'], address:'Zone_A',
+    menu:[
+      { id:'d031', name:'Classic Cheeseburger', price:199, category:'Burgers', rating:4.4, isVeg:false },
+      { id:'d032', name:'Veggie Delight Burger', price:169, category:'Burgers', rating:4.2, isVeg:true },
+      { id:'d033', name:'Crispy Fries (L)', price:89, category:'Sides', rating:4.5, isVeg:true },
+      { id:'d034', name:'Chocolate Shake', price:129, category:'Beverages', rating:4.6, isVeg:true },
+      { id:'d035', name:'Chicken Wings (8pc)', price:249, category:'Starters', rating:4.3, isVeg:false },
+    ]},
+};
+
+async function loadRestaurant() {
+  try {
+    const data = await api.getRestaurant(restaurantId);
+    restaurant = data;
+    fullMenu = data.menu || [];
+    renderHeader();
+    renderMenu();
+    loadRoute(data.address || 'Zone_A');
+  } catch {
+    restaurant = DEMO_RESTAURANTS[restaurantId] || DEMO_RESTAURANTS['rest_001'];
+    fullMenu = restaurant.menu;
+    renderHeader();
+    renderMenu();
+    loadRoute(restaurant.address || 'Zone_A');
+  }
+}
+
+function renderHeader() {
+  const r = restaurant;
+  document.title = `FoodFlow — ${r.name}`;
+  document.getElementById('restEmoji').textContent = EMOJIS[r.cuisine] || '🍽️';
+  document.getElementById('restName').outerHTML = `<h2 id="restName" style="color:var(--cream);margin-bottom:8px;">${r.name}</h2>`;
+  document.getElementById('restMeta').innerHTML = `
+    <div class="rating">⭐ ${r.rating}</div>
+    <div class="delivery-time">🕐 ${r.deliveryTime} min</div>
+    <div class="min-order" style="font-size:0.8rem;color:var(--text-muted);">Min order ₹${r.minOrder}</div>
+    <span style="font-size:0.8rem;padding:3px 10px;border-radius:999px;background:${r.isOpen ? 'rgba(45,189,114,0.12)' : 'rgba(255,77,46,0.12)'};color:${r.isOpen ? 'var(--green)' : 'var(--coral)'};">
+      ${r.isOpen ? '● Open Now' : '● Closed'}
+    </span>`;
+  document.getElementById('restTags').innerHTML = (r.tags||[]).map(t => `<span class="cuisine-tag" style="margin-right:4px;">${t}</span>`).join('');
+}
+
+function renderMenu() {
+  const categories = ['All', ...new Set(fullMenu.map(d => d.category))];
+  document.getElementById('categoryFilter').innerHTML = categories.map(c =>
+    `<div class="chip ${c === activeCategory ? 'active' : ''}" data-cat="${c}">${c}</div>`
+  ).join('');
+
+  let items = activeCategory === 'All' ? fullMenu : fullMenu.filter(d => d.category === activeCategory);
+  if (vegOnly) items = items.filter(d => d.isVeg);
+
+  const grouped = {};
+  items.forEach(d => {
+    if (!grouped[d.category]) grouped[d.category] = [];
+    grouped[d.category].push(d);
+  });
+
+  document.getElementById('menuContainer').innerHTML = Object.entries(grouped).map(([cat, dishes]) => `
+    <div style="margin-bottom:2rem;">
+      <h3 style="color:var(--cream);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">${cat}</h3>
+      <div style="display:flex;flex-direction:column;gap:1rem;">
+        ${dishes.map(d => createDishCard(d)).join('')}
+      </div>
+    </div>`).join('') || `<div class="empty-state"><div class="empty-icon">🥗</div><div class="empty-title">No items found</div></div>`;
+}
+
+function createDishCard(dish) {
+  const DISH_EMOJIS = { 'Chicken Biryani':'🍛','Paneer Butter Masala':'🧆','Garlic Naan':'🫓','Dal Makhani':'🍲','Mango Lassi':'🥤','Chicken Fried Rice':'🍳','Veg Hakka Noodles':'🍜','Kung Pao Chicken':'🐔','Spring Rolls (6pc)':'🥟','Hot & Sour Soup':'🍵','Margherita Pizza':'🍕','BBQ Chicken Pizza':'🍕','Penne Arrabbiata':'🍝','Garlic Bread':'🥖','Tiramisu':'🍮','Classic Cheeseburger':'🍔','Veggie Delight Burger':'🍔','Crispy Fries (L)':'🍟','Chocolate Shake':'🥤','Chicken Wings (8pc)':'🍗' };
+  const emoji = DISH_EMOJIS[dish.name] || (dish.isVeg ? '🥗' : '🍖');
+  return `
+  <div style="display:flex;gap:1rem;background:var(--dark-2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;align-items:center;">
+    <div style="font-size:2.5rem;background:var(--dark-3);width:72px;height:72px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${emoji}</div>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <span class="veg-dot ${dish.isVeg ? 'veg' : 'nonveg'}"></span>
+        <span style="font-weight:600;color:var(--cream);">${dish.name}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">⭐ ${dish.rating || '4.0'}</span>
+        <span style="font-size:0.72rem;color:var(--text-muted);">${dish.category}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-weight:700;color:var(--cream);font-size:1rem;">₹${dish.price}</span>
+        <button onclick="addToCart(${JSON.stringify(dish).replace(/"/g,'&quot;')})" 
+          style="background:var(--coral);color:white;border:none;padding:7px 18px;border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:var(--transition);"
+          onmouseover="this.style.background='var(--coral-light)'" onmouseout="this.style.background='var(--coral)'">
+          + Add
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+async function loadRoute(from) {
+  const panel = document.getElementById('routePanel');
+  panel.innerHTML = `<div style="font-size:0.75rem;color:var(--text-muted);">⏳ Computing route...</div>`;
+  try {
+    const route = await api.getDeliveryRoute(from, 'CustomerArea');
+    panel.innerHTML = `
+      <div style="font-size:0.72rem;font-weight:700;color:var(--coral);margin-bottom:8px;">🗺️ Dijkstra Route (DSA)</div>
+      <div style="font-size:0.78rem;color:var(--text-light);margin-bottom:6px;">📍 ${route.path?.join(' → ') || 'Route computed'}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">Travel time: <strong style="color:var(--cream);">${route.totalTimeMinutes || restaurant?.deliveryTime || 30} min</strong></div>
+      <div style="font-size:0.68rem;color:var(--text-muted);margin-top:4px;">O((V+E)log V) complexity</div>`;
+  } catch {
+    panel.innerHTML = `<div style="font-size:0.75rem;font-weight:700;color:var(--coral);margin-bottom:6px;">🗺️ Delivery Route</div><div style="font-size:0.78rem;color:var(--text-light);">RestaurantHub → Zone_A → CustomerArea</div><div style="font-size:0.75rem;color:var(--text-muted);">Est. ${restaurant?.deliveryTime || 30} min</div>`;
+  }
+}
+
+function addToCart(dish) {
+  const success = cart.addItem(dish, restaurant.id, restaurant.name);
+  if (success) showToast(`${dish.name} added to cart! 🛒`, 'success');
+}
+
+// Category filter
+document.getElementById('categoryFilter').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#categoryFilter .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeCategory = chip.dataset.cat;
+  renderMenu();
+});
+
+document.getElementById('vegToggle').addEventListener('change', e => {
+  vegOnly = e.target.checked;
+  renderMenu();
+});
+
+// Cart sidebar updates
+cart.subscribe(state => {
+  document.getElementById('cartBadge').textContent = state.count;
+  const cartItems = document.getElementById('cartItems');
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  const summary = document.getElementById('cartSummary');
+
+  if (!state.items.length) {
+    cartItems.innerHTML = `<div class="empty-state" style="padding:2rem 0;"><div class="empty-icon" style="font-size:2.5rem;">🍽️</div><div class="empty-title" style="font-size:1rem;">Cart is empty</div></div>`;
+    checkoutBtn.disabled = true;
+    summary.style.display = 'none';
+    return;
+  }
+
+  checkoutBtn.disabled = false;
+  summary.style.display = 'block';
+  document.getElementById('cartRestName').textContent = state.restaurantName;
+  document.getElementById('cartSubtotal').textContent = `₹${state.subtotal}`;
+  document.getElementById('cartDeliveryFee').textContent = state.deliveryFee ? `₹${state.deliveryFee}` : 'FREE';
+  document.getElementById('cartTotal').textContent = `₹${state.total}`;
+
+  cartItems.innerHTML = state.items.map(({ dish, quantity }) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="flex:1;">
+        <div style="font-size:0.85rem;font-weight:600;color:var(--cream);">${dish.name}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">₹${dish.price} each</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="cart.removeItem('${dish.id}')" style="background:var(--dark-3);border:1px solid rgba(255,255,255,0.1);color:var(--cream);width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.9rem;">−</button>
+        <span style="font-weight:700;color:var(--cream);min-width:16px;text-align:center;">${quantity}</span>
+        <button onclick="cart.addItem(${JSON.stringify(dish).replace(/"/g,"'")}, '${restaurant?.id}', '${restaurant?.name}')" style="background:var(--coral);border:none;color:white;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:0.9rem;">+</button>
+      </div>
+      <span style="font-weight:700;color:var(--cream);font-size:0.85rem;min-width:50px;text-align:right;">₹${dish.price * quantity}</span>
+    </div>`).join('');
+});
+
+const initState = cart.getState();
+document.getElementById('cartBadge').textContent = initState.count;
+loadRestaurant();
+</script>
+</body>
+</html>

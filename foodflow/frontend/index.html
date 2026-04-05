@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodFlow — Order Food You Love</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ── Navbar ────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Food<span>Flow</span></a>
+
+  <div class="nav-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search restaurants, dishes, cuisines..." autocomplete="off" />
+    <div class="search-dropdown" id="searchDropdown" style="display:none;"></div>
+  </div>
+
+  <div class="nav-links">
+    <a href="index.html"      class="nav-link active">Home</a>
+    <a href="dashboard.html"  class="nav-link">📊 Analytics</a>
+    <a href="cart.html"       class="nav-link">Cart</a>
+    <button class="btn-cart" onclick="location.href='cart.html'">
+      🛒 Cart <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────── -->
+<div style="background: radial-gradient(ellipse 80% 60% at 70% 50%, rgba(255,77,46,0.08) 0%, transparent 70%);">
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">🔥 DSA-Powered Food Delivery</div>
+      <h1 class="hero-title">
+        Hungry? We've got<br/>
+        <span class="accent">the algorithm</span><br/>
+        for that.
+      </h1>
+      <p class="hero-subtitle">
+        Trie-powered search, Dijkstra-optimized delivery routes, and a Min-Heap dispatch queue — all working behind the scenes to get food to you faster.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="document.getElementById('restaurants').scrollIntoView({behavior:'smooth'})">
+          🍽️ Explore Restaurants
+        </button>
+        <a href="dashboard.html" class="btn-outline">📊 View Analytics</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-num" id="statRestaurants">6</div>
+          <div class="stat-label">Restaurants</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">200+</div>
+          <div class="stat-label">Orders Today</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">28m</div>
+          <div class="stat-label">Avg Delivery</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="food-card-mini">
+        <span class="food-emoji">🍕</span>
+        <div class="food-name">BBQ Chicken Pizza</div>
+        <div class="food-rest">Pizza Piazza</div>
+        <div class="food-price">₹420</div>
+      </div>
+      <div class="food-card-mini">
+        <span class="food-emoji">🍛</span>
+        <div class="food-name">Chicken Biryani</div>
+        <div class="food-rest">Spice Garden</div>
+        <div class="food-price">₹280</div>
+      </div>
+      <div class="food-card-mini">
+        <span class="food-emoji">🍔</span>
+        <div class="food-name">Classic Cheeseburger</div>
+        <div class="food-rest">Burger Barn</div>
+        <div class="food-price">₹199</div>
+      </div>
+      <div class="food-card-mini">
+        <span class="food-emoji">🍣</span>
+        <div class="food-name">Dragon Roll</div>
+        <div class="food-rest">Sushi Zen</div>
+        <div class="food-price">₹420</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ── DSA Info Banner ─────────────────────────────────────── -->
+<div style="max-width:1280px;margin:0 auto;padding:0 clamp(1rem,4vw,3rem);">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:2rem;">
+    <div class="dsa-info-card" style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;border-left:3px solid var(--coral);">
+      <div style="font-size:1.5rem;margin-bottom:0.5rem;">🔍</div>
+      <div style="font-weight:700;color:var(--cream);font-size:0.9rem;margin-bottom:3px;">Trie Autocomplete</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">O(m) prefix search across all restaurants & dishes</div>
+    </div>
+    <div class="dsa-info-card" style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;border-left:3px solid var(--green);">
+      <div style="font-size:1.5rem;margin-bottom:0.5rem;">🗺️</div>
+      <div style="font-weight:700;color:var(--cream);font-size:0.9rem;margin-bottom:3px;">Dijkstra Routing</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">Shortest delivery path in the city graph</div>
+    </div>
+    <div class="dsa-info-card" style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;border-left:3px solid var(--amber);">
+      <div style="font-size:1.5rem;margin-bottom:0.5rem;">⚡</div>
+      <div style="font-weight:700;color:var(--cream);font-size:0.9rem;margin-bottom:3px;">Min-Heap Queue</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">O(log n) priority dispatch for orders</div>
+    </div>
+    <div class="dsa-info-card" style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:1.25rem;border-left:3px solid #9B7FFF;">
+      <div style="font-size:1.5rem;margin-bottom:0.5rem;">💾</div>
+      <div style="font-weight:700;color:var(--cream);font-size:0.9rem;margin-bottom:3px;">LRU Cache</div>
+      <div style="font-size:0.75rem;color:var(--text-muted);">O(1) menu caching with doubly linked list</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Restaurants Section ───────────────────────────────────── -->
+<section class="section" id="restaurants">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Restaurants Near You</div>
+      <h2>What are you craving?</h2>
+    </div>
+    <a href="#" class="see-all">View all →</a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar" id="filterBar">
+    <div class="chip active" data-filter="all">All</div>
+    <div class="chip" data-filter="Indian">🍛 Indian</div>
+    <div class="chip" data-filter="Chinese">🥢 Chinese</div>
+    <div class="chip" data-filter="Italian">🍕 Italian</div>
+    <div class="chip" data-filter="American">🍔 American</div>
+    <div class="chip" data-filter="Japanese">🍱 Japanese</div>
+    <div class="chip" data-filter="Mexican">🌮 Mexican</div>
+    <div class="chip" data-filter="open">✅ Open Now</div>
+    <div class="chip" data-filter="fast">⚡ Under 30 min</div>
+    <div class="chip" data-filter="top">⭐ Top Rated</div>
+  </div>
+
+  <!-- Restaurant Grid -->
+  <div class="restaurant-grid" id="restaurantGrid">
+    <!-- Skeleton loaders -->
+    <div class="restaurant-card" style="pointer-events:none;">
+      <div class="restaurant-img skeleton" style="height:180px;display:block;border-radius:0;"></div>
+      <div class="restaurant-info">
+        <div class="skeleton" style="height:18px;width:70%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:50%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:40%;"></div>
+      </div>
+    </div>
+    <div class="restaurant-card" style="pointer-events:none;">
+      <div class="restaurant-img skeleton" style="height:180px;display:block;border-radius:0;"></div>
+      <div class="restaurant-info">
+        <div class="skeleton" style="height:18px;width:65%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:55%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:35%;"></div>
+      </div>
+    </div>
+    <div class="restaurant-card" style="pointer-events:none;">
+      <div class="restaurant-img skeleton" style="height:180px;display:block;border-radius:0;"></div>
+      <div class="restaurant-info">
+        <div class="skeleton" style="height:18px;width:75%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:45%;margin-bottom:8px;"></div>
+        <div class="skeleton" style="height:14px;width:50%;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Chatbot ──────────────────────────────────────────────── -->
+<button class="chatbot-toggle" id="chatToggle" title="Chat with FoodBot">🤖</button>
+
+<div class="chatbot-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="chat-avatar">🍔</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">FoodBot</div>
+      <div class="chat-header-status">
+        <span class="status-dot"></span> Always here to help
+      </div>
+    </div>
+    <button class="chat-close-btn" id="chatClose">✕</button>
+  </div>
+
+  <div class="quick-chips" id="quickChips">
+    <div class="quick-chip" data-msg="What's the best rated restaurant?">⭐ Top Rated</div>
+    <div class="quick-chip" data-msg="Show me Indian food">🍛 Indian</div>
+    <div class="quick-chip" data-msg="Fastest delivery options">⚡ Fast Delivery</div>
+    <div class="quick-chip" data-msg="Budget meals under ₹200">💰 Budget</div>
+    <div class="quick-chip" data-msg="Vegetarian options">🥗 Veg</div>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+    <div class="message bot">
+      <div class="msg-avatar">🍔</div>
+      <div>
+        <div class="msg-bubble">
+          👋 Hey there! I'm <strong>FoodBot</strong>, your AI-powered food assistant!<br/><br/>
+          I can help you find the perfect restaurant, suggest dishes, or explain how our DSA-powered delivery works. What are you craving? 😋
+        </div>
+        <div class="msg-time">Just now</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask me anything about food..." rows="1"></textarea>
+    <button class="chat-send-btn" id="chatSend">➤</button>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script src="js/search.js"></script>
+<script src="../chatbot/chatbot.js"></script>
+<script>
+// ── Load Restaurants ────────────────────────────────────────
+const RESTAURANT_EMOJIS = {
+  'Indian':'🍛','Chinese':'🥢','Italian':'🍕','American':'🍔','Japanese':'🍣','Mexican':'🌮'
+};
+
+let allRestaurants = [];
+let activeFilter = 'all';
+
+async function loadRestaurants(filter = 'all') {
+  const grid = document.getElementById('restaurantGrid');
+  try {
+    const filters = {};
+    if (filter === 'open')   filters.isOpen = true;
+    if (filter === 'fast')   filters.maxDeliveryTime = 30;
+    if (filter === 'top')    filters.minRating = 4.5;
+    if (!['all','open','fast','top'].includes(filter)) filters.cuisine = filter;
+
+    const data = await api.getRestaurants(filters);
+    allRestaurants = data.restaurants;
+    renderRestaurants(allRestaurants);
+    document.getElementById('statRestaurants').textContent = allRestaurants.length;
+  } catch (err) {
+    // Demo mode — use hardcoded data
+    renderDemoRestaurants();
+  }
+}
+
+function renderRestaurants(restaurants) {
+  const grid = document.getElementById('restaurantGrid');
+  if (!restaurants.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🍽️</div>
+      <div class="empty-title">No restaurants found</div>
+      <div class="empty-desc">Try a different filter or search</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = restaurants.map(r => createRestaurantCard(r)).join('');
+}
+
+function createRestaurantCard(r) {
+  const emoji = RESTAURANT_EMOJIS[r.cuisine] || '🍽️';
+  const isOpen = r.isOpen !== false;
+  return `
+  <div class="restaurant-card" onclick="location.href='restaurant.html?id=${r.id}'">
+    <div class="restaurant-img">
+      <div style="font-size:5rem;background:var(--dark-3);width:100%;height:100%;display:flex;align-items:center;justify-content:center;">${emoji}</div>
+      <div class="restaurant-img-overlay"></div>
+      <div class="rest-badge ${isOpen ? '' : 'closed'}">${isOpen ? '🟢 Open' : '🔴 Closed'}</div>
+      ${r.rating >= 4.5 ? '<div class="rest-badge promo" style="left:auto;right:12px">🏆 Top Rated</div>' : ''}
+    </div>
+    <div class="restaurant-info">
+      <div class="restaurant-name">${r.name}</div>
+      <span class="cuisine-tag">${r.cuisine}</span>
+      <div class="restaurant-meta">
+        <div class="rating">⭐ ${r.rating}</div>
+        <div class="delivery-time">🕐 ${r.deliveryTime} min</div>
+        <div class="min-order">Min ₹${r.minOrder}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+        ${(r.tags || []).slice(0,3).map(t => `<span class="cuisine-tag">${t}</span>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderDemoRestaurants() {
+  const demo = [
+    { id:'rest_001', name:'Spice Garden',  cuisine:'Indian',   rating:4.5, deliveryTime:30, minOrder:150, isOpen:true,  tags:['Biryani','Curry'] },
+    { id:'rest_002', name:'Dragon Palace', cuisine:'Chinese',  rating:4.2, deliveryTime:25, minOrder:200, isOpen:true,  tags:['Noodles','Dim Sum'] },
+    { id:'rest_003', name:'Pizza Piazza',  cuisine:'Italian',  rating:4.6, deliveryTime:35, minOrder:300, isOpen:true,  tags:['Pizza','Pasta'] },
+    { id:'rest_004', name:'Burger Barn',   cuisine:'American', rating:4.3, deliveryTime:20, minOrder:100, isOpen:true,  tags:['Burgers','Fries'] },
+    { id:'rest_005', name:'Sushi Zen',     cuisine:'Japanese', rating:4.7, deliveryTime:40, minOrder:400, isOpen:false, tags:['Sushi','Ramen'] },
+    { id:'rest_006', name:'Taco Fiesta',   cuisine:'Mexican',  rating:4.1, deliveryTime:28, minOrder:180, isOpen:true,  tags:['Tacos','Burritos'] },
+  ];
+  allRestaurants = demo;
+  renderRestaurants(demo);
+}
+
+// ── Filter Chips ────────────────────────────────────────────
+document.getElementById('filterBar').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeFilter = chip.dataset.filter;
+  loadRestaurants(activeFilter);
+});
+
+// ── Cart Badge ──────────────────────────────────────────────
+cart.subscribe(state => {
+  document.getElementById('cartBadge').textContent = state.count;
+});
+const cartState = cart.getState();
+document.getElementById('cartBadge').textContent = cartState.count;
+
+// ── Init ────────────────────────────────────────────────────
+loadRestaurants();
+</script>
+</body>
+</html>

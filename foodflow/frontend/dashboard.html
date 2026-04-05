@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodFlow — Analytics Dashboard</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Food<span>Flow</span></a>
+  <div class="nav-links">
+    <a href="index.html"     class="nav-link">🏠 Home</a>
+    <a href="dashboard.html" class="nav-link active">📊 Analytics</a>
+    <button class="btn-cart" onclick="location.href='cart.html'">
+      🛒 Cart <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Overview</div>
+    <div class="sidebar-item active" onclick="showSection('overview')"><span class="icon">📊</span>Dashboard</div>
+    <div class="sidebar-item" onclick="showSection('revenue')"><span class="icon">💰</span>Revenue</div>
+    <div class="sidebar-item" onclick="showSection('heatmap')"><span class="icon">🔥</span>Order Heatmap</div>
+
+    <div class="sidebar-label">Performance</div>
+    <div class="sidebar-item" onclick="showSection('dishes')"><span class="icon">🍽️</span>Top Dishes</div>
+    <div class="sidebar-item" onclick="showSection('delivery')"><span class="icon">🚴</span>Delivery Stats</div>
+    <div class="sidebar-item" onclick="showSection('restaurants')"><span class="icon">🏪</span>Restaurant Ranking</div>
+
+    <div class="sidebar-label">DSA</div>
+    <div class="sidebar-item" onclick="showSection('dsa')"><span class="icon">🧠</span>DSA Explorer</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="dashboard-main">
+
+    <!-- ── Overview KPIs ──────────────────────────────────── -->
+    <section id="sec-overview">
+      <div class="dashboard-header">
+        <h2>Analytics Dashboard</h2>
+        <p>Real-time insights powered by QuickSort, sliding window, and HashMap analysis</p>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi-card skeleton" style="height:100px;"></div>
+        <div class="kpi-card skeleton" style="height:100px;"></div>
+        <div class="kpi-card skeleton" style="height:100px;"></div>
+        <div class="kpi-card skeleton" style="height:100px;"></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card wide">
+          <div class="chart-title">Revenue Trend (30 Days)</div>
+          <div class="chart-subtitle">Daily revenue with 7-day moving average — Sliding Window O(n)</div>
+          <div class="chart-wrapper"><canvas id="revenueChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Customer Retention</div>
+          <div class="chart-subtitle">New vs. returning customers</div>
+          <div class="chart-wrapper"><canvas id="retentionChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Delivery Performance</div>
+          <div class="chart-subtitle">Time distribution histogram</div>
+          <div class="chart-wrapper"><canvas id="deliveryChart"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Heatmap Section ────────────────────────────────── -->
+    <section id="sec-heatmap" style="display:none;">
+      <div class="dashboard-header">
+        <h2>Order Heatmap</h2>
+        <p>Peak order times by day and hour. HashMap aggregation O(n).</p>
+      </div>
+      <div class="chart-card" style="margin-bottom:1.5rem;">
+        <div class="chart-title">Orders by Day × Hour</div>
+        <div class="chart-subtitle" id="peakSlotInfo">Loading peak time data...</div>
+        <div class="heatmap-container" id="heatmapContainer" style="margin-top:1rem;"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:1rem;font-size:0.75rem;color:var(--text-muted);">
+          <div style="width:12px;height:12px;border-radius:2px;background:var(--dark-3);"></div> 0 orders
+          <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,77,46,0.4);"></div> Medium
+          <div style="width:12px;height:12px;border-radius:2px;background:var(--coral);"></div> Peak
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Dishes Section ─────────────────────────────────── -->
+    <section id="sec-dishes" style="display:none;">
+      <div class="dashboard-header">
+        <h2>Top Dishes</h2>
+        <p>Ranked by order frequency using QuickSort O(n log n)</p>
+      </div>
+      <div class="chart-card" style="margin-bottom:1.5rem;">
+        <div class="chart-title">Most Ordered Dishes</div>
+        <div class="chart-subtitle">Sorted using custom QuickSort implementation</div>
+        <div class="chart-wrapper"><canvas id="dishChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ── Restaurants Ranking ────────────────────────────── -->
+    <section id="sec-restaurants" style="display:none;">
+      <div class="dashboard-header">
+        <h2>Restaurant Rankings</h2>
+        <p>Performance metrics sorted by order count — QuickSort O(n log n)</p>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Restaurant Performance</div>
+        <div class="chart-subtitle">Order count, revenue, ratings</div>
+        <div style="overflow-x:auto;margin-top:1rem;">
+          <table class="ranking-table" id="rankingTable">
+            <thead>
+              <tr>
+                <th>#</th><th>Restaurant</th><th>Cuisine</th>
+                <th>Orders</th><th>Revenue</th><th>Rating</th><th>Share</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── DSA Explorer ───────────────────────────────────── -->
+    <section id="sec-dsa" style="display:none;">
+      <div class="dashboard-header">
+        <h2>DSA Explorer</h2>
+        <p>Live visualization of data structures powering FoodFlow</p>
+      </div>
+
+      <div class="dsa-panel" style="margin-bottom:1.5rem;">
+        <h3>🧠 DSA Structures in Use</h3>
+        <div class="dsa-badge-grid">
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Trie (Prefix Tree)</div>
+            <div class="dsa-badge-use">Search autocomplete</div>
+            <div class="dsa-badge-complexity">insert O(m) • search O(m+k)</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Min-Heap</div>
+            <div class="dsa-badge-use">Order dispatch queue</div>
+            <div class="dsa-badge-complexity">insert O(log n) • peek O(1)</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Dijkstra's Algorithm</div>
+            <div class="dsa-badge-use">Delivery route optimization</div>
+            <div class="dsa-badge-complexity">O((V+E) log V)</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">LRU Cache</div>
+            <div class="dsa-badge-use">Menu & restaurant caching</div>
+            <div class="dsa-badge-complexity">get O(1) • put O(1)</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">QuickSort</div>
+            <div class="dsa-badge-use">Analytics ranking</div>
+            <div class="dsa-badge-complexity">avg O(n log n)</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Sliding Window</div>
+            <div class="dsa-badge-use">Moving average revenue</div>
+            <div class="dsa-badge-complexity">O(n) time • O(k) space</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Graph (Adj. List)</div>
+            <div class="dsa-badge-use">City delivery network</div>
+            <div class="dsa-badge-complexity">O(V+E) traversal</div>
+          </div>
+          <div class="dsa-badge">
+            <div class="dsa-badge-name">Hash Map</div>
+            <div class="dsa-badge-use">Cart, session, analytics</div>
+            <div class="dsa-badge-complexity">get/set/del O(1)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+        <div class="chart-card">
+          <div class="chart-title">🔍 Trie Search Demo</div>
+          <div class="chart-subtitle">Type to see autocomplete in action</div>
+          <input type="text" id="trieInput" placeholder="Search pizza, biryani..." style="width:100%;padding:10px 14px;background:var(--dark-3);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:var(--cream);font-family:var(--font-body);outline:none;margin:12px 0;" />
+          <div id="trieResults" style="font-size:0.82rem;color:var(--text-light);min-height:60px;"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">⚡ Min-Heap Queue Demo</div>
+          <div class="chart-subtitle">Current order dispatch queue state</div>
+          <div id="heapDemo" style="margin-top:12px;"></div>
+          <button onclick="simulateOrder()" style="margin-top:12px;background:var(--coral);color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;">+ Simulate New Order</button>
+        </div>
+      </div>
+
+      <!-- Dijkstra Visualizer -->
+      <div class="chart-card" style="margin-top:1.5rem;">
+        <div class="chart-title">🗺️ Dijkstra's Algorithm — City Delivery Graph</div>
+        <div class="chart-subtitle">Select source and target to compute shortest delivery path</div>
+        <div style="display:flex;gap:1rem;margin:12px 0;flex-wrap:wrap;">
+          <select id="routeFrom" style="background:var(--dark-3);border:1px solid rgba(255,255,255,0.08);color:var(--cream);padding:8px 12px;border-radius:8px;font-family:var(--font-body);outline:none;">
+            <option value="RestaurantHub">RestaurantHub</option>
+            <option value="Zone_A">Zone A</option>
+            <option value="Zone_B">Zone B</option>
+            <option value="Zone_C">Zone C</option>
+            <option value="Zone_D">Zone D</option>
+            <option value="Zone_E">Zone E</option>
+          </select>
+          <span style="align-self:center;color:var(--text-muted);">→</span>
+          <select id="routeTo" style="background:var(--dark-3);border:1px solid rgba(255,255,255,0.08);color:var(--cream);padding:8px 12px;border-radius:8px;font-family:var(--font-body);outline:none;">
+            <option value="CustomerArea">CustomerArea</option>
+            <option value="Zone_A">Zone A</option>
+            <option value="Zone_C">Zone C</option>
+            <option value="Zone_D">Zone D</option>
+          </select>
+          <button onclick="runDijkstra()" style="background:var(--coral);color:white;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;">Compute Route</button>
+        </div>
+        <div id="dijkstraResult" style="background:var(--dark-3);border-radius:10px;padding:1rem;font-size:0.82rem;color:var(--text-light);min-height:50px;"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

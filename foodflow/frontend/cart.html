@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FoodFlow — Checkout</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Food<span>Flow</span></a>
+  <div class="nav-links">
+    <a href="javascript:history.back()" class="nav-link">← Back to Menu</a>
+    <button class="btn-cart" style="pointer-events:none;opacity:0.7;">
+      🛒 Cart <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</nav>
+
+<div style="max-width:960px;margin:0 auto;padding:2rem clamp(1rem,4vw,3rem);">
+  <h2 style="margin-bottom:2rem;">🛒 Your Order</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:2rem;" id="checkoutLayout">
+
+    <!-- Left: Cart Items + Address -->
+    <div>
+      <!-- Cart Items -->
+      <div style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:1.5rem;">
+        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <h3 style="color:var(--cream);">Order Items</h3>
+          <div id="cartRestaurantName" style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;"></div>
+        </div>
+        <div id="cartItemList" style="padding:1rem 1.5rem;"></div>
+      </div>
+
+      <!-- Delivery Address -->
+      <div style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem;">
+        <h3 style="color:var(--cream);margin-bottom:1.25rem;">📍 Delivery Zone</h3>
+        <div style="display:grid;gap:0.75rem;">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border:2px solid var(--coral);border-radius:12px;background:rgba(255,77,46,0.05);">
+            <input type="radio" name="zone" value="CustomerArea" checked style="margin-top:3px;accent-color:var(--coral);" />
+            <div>
+              <div style="font-weight:600;color:var(--cream);font-size:0.9rem;">🏠 Home — Zone A (CustomerArea)</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">Dijkstra path: ~9-13 min travel time</div>
+            </div>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+            <input type="radio" name="zone" value="Zone_C" style="margin-top:3px;accent-color:var(--coral);" />
+            <div>
+              <div style="font-weight:600;color:var(--cream);font-size:0.9rem;">💼 Office — Zone C</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);">Dijkstra path: ~9-11 min travel time</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- DSA Info -->
+      <div style="background:rgba(255,77,46,0.04);border:1px solid rgba(255,77,46,0.15);border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--coral);margin-bottom:10px;">🧠 DSA Powers Your Order</div>
+        <div style="display:grid;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);">
+            <span style="color:var(--green);">✓</span> <strong style="color:var(--text-light);">Dijkstra's Algorithm</strong> — finds shortest delivery path
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);">
+            <span style="color:var(--green);">✓</span> <strong style="color:var(--text-light);">Min-Heap Queue</strong> — dispatches your rider optimally
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);">
+            <span style="color:var(--green);">✓</span> <strong style="color:var(--text-light);">HashMap (O(1))</strong> — instant cart operations
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--text-muted);">
+            <span style="color:var(--green);">✓</span> <strong style="color:var(--text-light);">LRU Cache</strong> — menu fetched in O(1) lookup
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Order Summary -->
+    <div style="position:sticky;top:88px;align-self:start;">
+      <div style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;">
+        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <h3 style="color:var(--cream);">Order Summary</h3>
+        </div>
+        <div style="padding:1.25rem 1.5rem;">
+
+          <!-- Route Display -->
+          <div id="routeDisplay" style="background:var(--dark-3);border-radius:12px;padding:1rem;margin-bottom:1.25rem;min-height:60px;">
+            <div style="font-size:0.72rem;font-weight:700;color:var(--coral);margin-bottom:6px;">🗺️ Delivery Route (Dijkstra)</div>
+            <div id="routeText" style="font-size:0.78rem;color:var(--text-light);">Computing optimal route...</div>
+          </div>
+
+          <!-- Price Breakdown -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem;">
+            <div style="display:flex;justify-content:space-between;font-size:0.875rem;color:var(--text-light);">
+              <span>Subtotal</span><span id="summarySubtotal">₹0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.875rem;color:var(--text-light);">
+              <span>Delivery Fee</span><span id="summaryDelivery">₹40</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.875rem;color:var(--text-muted);">
+              <span>Taxes (5%)</span><span id="summaryTax">₹0</span>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,0.06);"></div>
+            <div style="display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:var(--cream);">
+              <span>Total</span><span id="summaryTotal">₹0</span>
+            </div>
+          </div>
+
+          <!-- Estimated Time -->
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(45,189,114,0.08);border:1px solid rgba(45,189,114,0.2);border-radius:10px;padding:10px 12px;margin-bottom:1.25rem;">
+            <span style="font-size:1.25rem;">🕐</span>
+            <div>
+              <div style="font-size:0.78rem;color:var(--text-muted);">Estimated Delivery</div>
+              <div style="font-weight:700;color:var(--green);font-size:1rem;" id="estDelivery">30–40 min</div>
+            </div>
+          </div>
+
+          <!-- VIP Option -->
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:1.25rem;font-size:0.85rem;color:var(--text-light);">
+            <input type="checkbox" id="vipToggle" style="accent-color:var(--gold);width:16px;height:16px;" />
+            <span>⭐ VIP Priority Order <span style="color:var(--gold);">(queue priority)</span></span>
+          </label>
+
+          <button class="btn-primary" style="width:100%;justify-content:center;" id="placeOrderBtn">
+            🍔 Place Order
+          </button>
+          <div style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:8px;">
+            Order processed via Min-Heap dispatch queue
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty Cart State -->
+  <div id="emptyCart" style="display:none;text-align:center;padding:4rem 2rem;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🛒</div>
+    <h3 style="color:var(--cream);margin-bottom:8px;">Your cart is empty</h3>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;">Add some delicious food to get started!</p>
+    <a href="index.html" class="btn-primary">Browse Restaurants →</a>
+  </div>
+</div>
+
+<!-- Order Success Modal -->
+<div id="orderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--dark-2);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:2.5rem;max-width:400px;width:90%;text-align:center;animation:dropIn 300ms ease;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🎉</div>
+    <h2 style="color:var(--cream);margin-bottom:8px;">Order Placed!</h2>
+    <div id="orderIdDisplay" style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1rem;"></div>
+    <div style="background:var(--dark-3);border-radius:12px;padding:1rem;margin-bottom:1.5rem;text-align:left;">
+      <div style="font-size:0.75rem;color:var(--coral);font-weight:700;margin-bottom:8px;">⚡ DSA Dispatch Log</div>
+      <div id="dispatchLog" style="font-size:0.78rem;color:var(--text-light);line-height:1.8;"></div>
+    </div>
+    <button class="btn-primary" style="width:100%;justify-content:center;" onclick="location.href='index.html'">
+      Back to Home
+    </button>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+
+<script src="js/api.js"></script>
+<script>
+let currentRoute = null;
+
+function updateSummary() {
+  const state = cart.getState();
+  document.getElementById('cartBadge').textContent = state.count;
+
+  if (!state.items.length) {
+    document.getElementById('checkoutLayout').style.display = 'none';
+    document.getElementById('emptyCart').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('checkoutLayout').style.display = 'grid';
+  document.getElementById('emptyCart').style.display = 'none';
+  document.getElementById('cartRestaurantName').textContent = `From: ${state.restaurantName}`;
+
+  const tax = Math.round(state.subtotal * 0.05);
+  document.getElementById('summarySubtotal').textContent = `₹${state.subtotal}`;
+  document.getElementById('summaryDelivery').textContent = state.deliveryFee ? `₹${state.deliveryFee}` : 'FREE 🎉';
+  document.getElementById('summaryTax').textContent = `₹${tax}`;
+  document.getElementById('summaryTotal').textContent = `₹${state.total + tax}`;
+
+  document.getElementById('cartItemList').innerHTML = state.items.map(({ dish, quantity }) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="flex:1;">
+        <div style="font-weight:600;color:var(--cream);font-size:0.9rem;">${dish.name}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">₹${dish.price} × ${quantity}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button onclick="cart.removeItem('${dish.id}')" style="background:var(--dark-3);border:1px solid rgba(255,255,255,0.1);color:var(--cream);width:28px;height:28px;border-radius:50%;cursor:pointer;">−</button>
+        <span style="font-weight:700;color:var(--cream);min-width:20px;text-align:center;">${quantity}</span>
+        <button onclick="cart.addItem(${JSON.stringify(dish).replace(/"/g,"'")}, '${state.restaurantId}', '${state.restaurantName}')" style="background:var(--coral);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;">+</button>
+      </div>
+      <span style="font-weight:700;color:var(--cream);font-size:0.9rem;min-width:55px;text-align:right;">₹${dish.price * quantity}</span>
+    </div>`).join('');
+}
+
+async function loadRoute() {
+  const zone = document.querySelector('input[name="zone"]:checked')?.value || 'CustomerArea';
+  const state = cart.getState();
+  try {
+    const restaurantId = state.restaurantId;
+    const ZONES = { rest_001:'Zone_A', rest_002:'Zone_B', rest_003:'Zone_C', rest_004:'Zone_A', rest_005:'Zone_E', rest_006:'Zone_D' };
+    const from = ZONES[restaurantId] || 'RestaurantHub';
+    currentRoute = await api.getDeliveryRoute(from, zone);
+    document.getElementById('routeText').innerHTML = `
+      <div style="margin-bottom:4px;">${currentRoute.path?.join(' → ') || 'RestaurantHub → CustomerArea'}</div>
+      <div style="color:var(--text-muted);">Travel: ${currentRoute.totalTimeMinutes || 13} min</div>`;
+    document.getElementById('estDelivery').textContent = `${(currentRoute.totalTimeMinutes || 13) + 15}–${(currentRoute.totalTimeMinutes || 13) + 25} min`;
+  } catch {
+    document.getElementById('routeText').textContent = 'RestaurantHub → Zone_A → CustomerArea';
+    document.getElementById('estDelivery').textContent = '28–38 min';
+  }
+}
+
+document.querySelectorAll('input[name="zone"]').forEach(r => r.addEventListener('change', loadRoute));
+
+async function placeOrder() {
+  const state = cart.getState();
+  if (!state.items.length) return showToast('Cart is empty!', 'error');
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled = true; btn.textContent = '⏳ Placing order...';
+
+  const orderData = {
+    userId: 'u001',
+    restaurantId: state.restaurantId,
+    items: state.items.map(({ dish, quantity }) => ({ dishId: dish.id, quantity })),
+    deliveryZone: document.querySelector('input[name="zone"]:checked')?.value || 'CustomerArea',
+    isVIP: document.getElementById('vipToggle').checked,
+  };
+
+  try {
+    const result = await api.placeOrder(orderData);
+    showOrderSuccess(result);
+  } catch {
+    // Demo mode
+    showOrderSuccess({
+      order: { id: 'demo-' + Date.now() },
+      message: 'Order placed successfully! (Demo mode)',
+      deliveryRoute: currentRoute || { path: ['RestaurantHub','Zone_A','CustomerArea'], totalTimeMinutes: 13 },
+    });
+  }
+}
+
+function showOrderSuccess(result) {
+  cart.clear();
+  const modal = document.getElementById('orderModal');
+  modal.style.display = 'flex';
+  document.getElementById('orderIdDisplay').textContent = `Order ID: ${result.order?.id?.slice(0,12) || 'demo'}`;
+  const route = result.deliveryRoute;
+  document.getElementById('dispatchLog').innerHTML = `
+    ✓ Order received & validated<br/>
+    ✓ Min-Heap: queued with priority ${result.order?.isVIP ? 'VIP (0)' : 'Standard (1)'}<br/>
+    ✓ Dijkstra path: ${route?.path?.join(' → ') || 'RestaurantHub → CustomerArea'}<br/>
+    ✓ Route distance: ${route?.totalTimeMinutes || 13} min travel time<br/>
+    ✓ Rider dispatched • ETA: ${(route?.totalTimeMinutes || 13) + 15} min`;
+}
+
+document.getElementById('placeOrderBtn').addEventListener('click', placeOrder);
+
+cart.subscribe(updateSummary);
+updateSummary();
+loadRoute();
+document.getElementById('cartBadge').textContent = cart.getState().count;
+</script>
+</body>
+</html>

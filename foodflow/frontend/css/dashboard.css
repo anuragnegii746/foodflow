@@ -1,0 +1,179 @@
+/* ============================================================
+   FoodFlow — Analytics Dashboard Styles
+   ============================================================ */
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 68px);
+}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+.sidebar {
+  background: var(--dark-2);
+  border-right: 1px solid rgba(255,255,255,0.06);
+  padding: 1.5rem 1rem;
+  position: sticky; top: 68px;
+  height: calc(100vh - 68px);
+  overflow-y: auto;
+}
+.sidebar-label {
+  font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted); padding: 0 0.75rem; margin: 1.25rem 0 0.5rem;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: var(--radius-md);
+  color: var(--text-light); font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  margin-bottom: 2px;
+}
+.sidebar-item:hover { background: var(--dark-3); color: var(--cream); }
+.sidebar-item.active {
+  background: rgba(255,77,46,0.12); color: var(--coral);
+}
+.sidebar-item .icon { font-size: 1rem; width: 20px; }
+
+/* ── Dashboard Main ──────────────────────────────────────────── */
+.dashboard-main { padding: 2rem; overflow-x: hidden; }
+
+.dashboard-header { margin-bottom: 2rem; }
+.dashboard-header h2 { margin-bottom: 4px; }
+.dashboard-header p { font-size: 0.875rem; }
+
+/* ── KPI Cards ───────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem; margin-bottom: 2rem;
+}
+.kpi-card {
+  background: var(--dark-2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  position: relative; overflow: hidden;
+  transition: var(--transition-slow);
+}
+.kpi-card:hover { border-color: rgba(255,77,46,0.2); transform: translateY(-2px); }
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent, var(--coral));
+}
+.kpi-card[data-accent="green"]  { --accent: var(--green); }
+.kpi-card[data-accent="amber"]  { --accent: var(--amber); }
+.kpi-card[data-accent="coral"]  { --accent: var(--coral); }
+.kpi-card[data-accent="purple"] { --accent: #9B7FFF; }
+
+.kpi-label {
+  font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); margin-bottom: 0.5rem;
+}
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 2rem; font-weight: 900; color: var(--cream);
+  line-height: 1;
+}
+.kpi-change {
+  font-size: 0.75rem; margin-top: 0.5rem;
+  display: flex; align-items: center; gap: 4px;
+}
+.kpi-change.up   { color: var(--green); }
+.kpi-change.down { color: var(--coral); }
+
+/* ── Chart Cards ─────────────────────────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem; margin-bottom: 2rem;
+}
+.chart-card {
+  background: var(--dark-2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-title {
+  font-weight: 700; color: var(--cream);
+  margin-bottom: 0.25rem; font-size: 1rem;
+}
+.chart-subtitle { font-size: 0.775rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+.chart-wrapper { position: relative; height: 240px; }
+.chart-wrapper canvas { max-height: 240px; }
+
+/* ── Heatmap ─────────────────────────────────────────────────── */
+.heatmap-container { overflow-x: auto; }
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: 50px repeat(24, 1fr);
+  gap: 2px;
+  min-width: 700px;
+}
+.heatmap-cell {
+  height: 28px; border-radius: 3px;
+  background: var(--dark-3);
+  transition: var(--transition);
+  position: relative;
+  cursor: default;
+}
+.heatmap-cell:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--dark); color: var(--cream);
+  padding: 4px 8px; border-radius: 6px;
+  font-size: 0.7rem; white-space: nowrap; z-index: 10;
+  pointer-events: none;
+}
+.heatmap-label {
+  display: flex; align-items: center; justify-content: flex-end;
+  font-size: 0.65rem; color: var(--text-muted); padding-right: 6px;
+}
+.heatmap-hour-label {
+  font-size: 0.6rem; color: var(--text-muted); text-align: center;
+}
+
+/* ── Ranking Table ───────────────────────────────────────────── */
+.ranking-table { width: 100%; border-collapse: collapse; }
+.ranking-table th {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-muted); font-weight: 600; padding: 8px 12px;
+  text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.ranking-table td {
+  padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.875rem; color: var(--text-light);
+}
+.ranking-table tr:hover td { background: rgba(255,255,255,0.02); }
+.rank-num {
+  font-family: var(--font-display); font-weight: 900;
+  color: var(--coral); font-size: 1rem;
+}
+.progress-bar-wrap { background: var(--dark-3); border-radius: 2px; height: 5px; width: 100px; }
+.progress-bar { height: 5px; border-radius: 2px; background: var(--coral); }
+
+/* ── DSA Panel ───────────────────────────────────────────────── */
+.dsa-panel {
+  background: linear-gradient(135deg, rgba(255,77,46,0.08), rgba(255,77,46,0.02));
+  border: 1px solid rgba(255,77,46,0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+.dsa-panel h3 { color: var(--coral); margin-bottom: 1rem; }
+.dsa-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.75rem; }
+.dsa-badge {
+  background: var(--dark-3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+}
+.dsa-badge-name { font-size: 0.8rem; font-weight: 700; color: var(--cream); }
+.dsa-badge-use  { font-size: 0.7rem; color: var(--text-muted); margin: 3px 0; }
+.dsa-badge-complexity { font-size: 0.68rem; color: var(--coral); font-family: monospace; }
+
+@media (max-width: 900px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .charts-grid { grid-template-columns: 1fr; }
+}
